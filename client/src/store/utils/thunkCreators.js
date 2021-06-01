@@ -33,7 +33,7 @@ export const register = (credentials) => async (dispatch) => {
     const { data } = await axios.post("/auth/register", credentials, {
       headers: { "X-CSRF-Token": response.data.csrfToken },
     });
-    //await localStorage.setItem("messenger-token", data.token);
+
     dispatch(gotUser(data));
     socket.emit("go-online", data.id);
   } catch (error) {
@@ -44,8 +44,11 @@ export const register = (credentials) => async (dispatch) => {
 
 export const login = (credentials) => async (dispatch) => {
   try {
-    const { data } = await axios.post("/auth/login", credentials);
-    //await localStorage.setItem("messenger-token", data.token);
+    const response = await axios.get("/auth/csrf-token");
+    const { data } = await axios.post("/auth/login", credentials, {
+      headers: { "X-CSRF-Token": response.data.csrfToken },
+    });
+
     dispatch(gotUser(data));
     socket.emit("go-online", data.id);
   } catch (error) {
@@ -56,8 +59,10 @@ export const login = (credentials) => async (dispatch) => {
 
 export const logout = (id) => async (dispatch) => {
   try {
-    await axios.delete("/auth/logout");
-    //await localStorage.removeItem("messenger-token");
+    const response = await axios.get("/auth/csrf-token");
+    await axios.delete("/auth/logout", {
+      headers: { "X-CSRF-Token": response.data.csrfToken },
+    });
     dispatch(gotUser({}));
     socket.emit("logout", id);
   } catch (error) {
