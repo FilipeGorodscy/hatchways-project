@@ -2,6 +2,11 @@ const router = require("express").Router();
 const { User } = require("../../db/models");
 const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
+const csrf = require("csurf");
+
+router.use(cookieParser());
+const csrfProtection = csrf({ cookie: true });
+router.use(csrfProtection);
 
 router.post("/register", async (req, res, next) => {
   try {
@@ -74,6 +79,10 @@ router.get("/user", (req, res, next) => {
   } else {
     return res.json({});
   }
+});
+
+router.get("/csrf-token", (req, res, next) => {
+  return res.json({ csrfToken: req.csrfToken() });
 });
 
 module.exports = router;
