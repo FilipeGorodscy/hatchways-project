@@ -86,11 +86,7 @@ const reducer = (state = [], action) => {
     case CLEAR_SEARCHED_USERS:
       return state.filter((convo) => convo.id);
     case ADD_CONVERSATION:
-      return addNewConvoToStore(
-        state,
-        action.payload.recipientId,
-        action.payload.newMessage
-      );
+      return addNewConvoToStore(state, action.payload.recipientId, action.payload.newMessage);
     default:
       return state;
   }
