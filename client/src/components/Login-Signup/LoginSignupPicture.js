@@ -26,7 +26,7 @@ const styles = {
 
 const LoginSignUpPicture = () => {
   return (
-    <Grid xs={5}>
+    <Grid item xs={5}>
       <Paper style={styles.background}>
         <Box style={styles.shadow}>
           <Grid container direction="row" alignContent="center" justify="center" style={{ minHeight: "100vh" }}>
