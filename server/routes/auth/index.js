@@ -1,10 +1,8 @@
 const router = require("express").Router();
 const { User } = require("../../db/models");
 const jwt = require("jsonwebtoken");
-const cookieParser = require("cookie-parser");
 const csrf = require("csurf");
 
-router.use(cookieParser());
 const csrfProtection = csrf({ cookie: true });
 router.use(csrfProtection);
 
