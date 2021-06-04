@@ -72,7 +72,6 @@ const mapDispatchToProps = (dispatch) => {
   return {
     logout: (id) => {
       dispatch(logout(id));
-      dispatch(clearOnLogout());
     },
     fetchConversations: () => {
       dispatch(fetchConversations());
@@ -80,7 +79,4 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withStyles(styles)(Home));
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Home));

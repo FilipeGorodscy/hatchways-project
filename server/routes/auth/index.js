@@ -5,6 +5,7 @@ const csrf = require("csurf");
 
 const csrfProtection = csrf({ cookie: true });
 router.use(csrfProtection);
+const oneDay = 24 * 60 * 60;
 
 router.post("/register", async (req, res, next) => {
   try {
@@ -21,8 +22,9 @@ router.post("/register", async (req, res, next) => {
 
     const user = await User.create(req.body);
 
-    const token = jwt.sign({ id: user.dataValues.id }, process.env.SESSION_SECRET, { expiresIn: 86400 });
-    res.cookie("token", token, { httpOnly: true });
+    const token = jwt.sign({ id: user.dataValues.id }, process.env.SESSION_SECRET, { expiresIn: oneDay });
+    res.cookie("token", token, { httpOnly: true, expires: new Date(new Date().getTime() + oneDay * 1000) });
+
     res.json({
       ...user.dataValues,
       token,
@@ -55,8 +57,8 @@ router.post("/login", async (req, res, next) => {
       console.log({ error: "Wrong email and/or password" });
       res.status(401).json({ error: "Wrong email and/or password" });
     } else {
-      const token = jwt.sign({ id: user.dataValues.id }, process.env.SESSION_SECRET, { expiresIn: 86400 });
-      res.cookie("token", token, { httpOnly: true });
+      const token = jwt.sign({ id: user.dataValues.id }, process.env.SESSION_SECRET, { expiresIn: oneDay });
+      res.cookie("token", token, { httpOnly: true, expires: new Date(new Date().getTime() + oneDay * 1000) });
       res.json({
         ...user.dataValues,
         token,
