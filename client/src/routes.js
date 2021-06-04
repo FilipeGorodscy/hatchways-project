@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { Route, Switch, withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import { fetchUser } from "./store/utils/thunkCreators";
+import { fetchUser, getCsrfToken } from "./store/utils/thunkCreators";
 import Signup from "./components/Login-Signup/Signup.js";
 import Login from "./components/Login-Signup/Login.js";
 import { Home, SnackbarError } from "./components";
 
 const Routes = (props) => {
-  const { user, fetchUser } = props;
+  const { user, fetchUser, getCsrfToken } = props;
   const [errorMessage, setErrorMessage] = useState("");
   const [snackBarOpen, setSnackBarOpen] = useState(false);
+
+  useEffect(() => {
+    getCsrfToken();
+  }, []);
 
   useEffect(() => {
     fetchUser();
@@ -56,6 +60,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     fetchUser() {
       dispatch(fetchUser());
+    },
+    getCsrfToken() {
+      dispatch(getCsrfToken());
     },
   };
 };
