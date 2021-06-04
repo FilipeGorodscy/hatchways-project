@@ -1,9 +1,20 @@
 import axios from "axios";
+import { clearOnLogout } from "..";
 import socket from "../../socket";
 import { gotConversations, addConversation, setNewMessage, setSearchedUsers } from "../conversations";
+import { gotCsrfToken } from "../token";
 import { gotUser, setFetchingStatus } from "../user";
 
 // USER THUNK CREATORS
+
+export const getCsrfToken = () => async (dispatch) => {
+  try {
+    const { data } = await axios.get("/auth/csrf-token");
+    dispatch(gotCsrfToken(data.csrfToken));
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 export const fetchUser = () => async (dispatch) => {
   dispatch(setFetchingStatus(true));
@@ -20,11 +31,11 @@ export const fetchUser = () => async (dispatch) => {
   }
 };
 
-export const register = (credentials) => async (dispatch) => {
+export const register = (credentials) => async (dispatch, getState) => {
   try {
-    const response = await axios.get("/auth/csrf-token");
+    const csrfToken = getState().token;
     const { data } = await axios.post("/auth/register", credentials, {
-      headers: { "X-CSRF-Token": response.data.csrfToken },
+      headers: { "X-CSRF-Token": csrfToken },
     });
 
     dispatch(gotUser(data));
@@ -35,11 +46,11 @@ export const register = (credentials) => async (dispatch) => {
   }
 };
 
-export const login = (credentials) => async (dispatch) => {
+export const login = (credentials) => async (dispatch, getState) => {
   try {
-    const response = await axios.get("/auth/csrf-token");
+    const csrfToken = getState().token;
     const { data } = await axios.post("/auth/login", credentials, {
-      headers: { "X-CSRF-Token": response.data.csrfToken },
+      headers: { "X-CSRF-Token": csrfToken },
     });
 
     dispatch(gotUser(data));
@@ -50,13 +61,15 @@ export const login = (credentials) => async (dispatch) => {
   }
 };
 
-export const logout = (id) => async (dispatch) => {
+export const logout = (id) => async (dispatch, getState) => {
   try {
-    const response = await axios.get("/auth/csrf-token");
+    const csrfToken = getState().token;
     await axios.delete("/auth/logout", {
-      headers: { "X-CSRF-Token": response.data.csrfToken },
+      headers: { "X-CSRF-Token": csrfToken },
     });
     dispatch(gotUser({}));
+    dispatch(clearOnLogout());
+
     socket.emit("logout", id);
   } catch (error) {
     console.error(error);
