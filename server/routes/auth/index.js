@@ -1,6 +1,10 @@
 const router = require("express").Router();
 const { User } = require("../../db/models");
 const jwt = require("jsonwebtoken");
+const csrf = require("csurf");
+
+const csrfProtection = csrf({ cookie: true });
+router.use(csrfProtection);
 
 router.post("/register", async (req, res, next) => {
   try {
@@ -18,6 +22,7 @@ router.post("/register", async (req, res, next) => {
     const user = await User.create(req.body);
 
     const token = jwt.sign({ id: user.dataValues.id }, process.env.SESSION_SECRET, { expiresIn: 86400 });
+    res.cookie("token", token, { httpOnly: true });
     res.json({
       ...user.dataValues,
       token,
@@ -51,6 +56,7 @@ router.post("/login", async (req, res, next) => {
       res.status(401).json({ error: "Wrong email and/or password" });
     } else {
       const token = jwt.sign({ id: user.dataValues.id }, process.env.SESSION_SECRET, { expiresIn: 86400 });
+      res.cookie("token", token, { httpOnly: true });
       res.json({
         ...user.dataValues,
         token,
@@ -62,6 +68,7 @@ router.post("/login", async (req, res, next) => {
 });
 
 router.delete("/logout", (req, res, next) => {
+  res.clearCookie("token");
   res.sendStatus(204);
 });
 
@@ -71,6 +78,10 @@ router.get("/user", (req, res, next) => {
   } else {
     return res.json({});
   }
+});
+
+router.get("/csrf-token", (req, res, next) => {
+  return res.json({ csrfToken: req.csrfToken() });
 });
 
 module.exports = router;
