@@ -33,7 +33,12 @@ export const fetchUser = () => async (dispatch) => {
 
 export const register = (credentials) => async (dispatch, getState) => {
   try {
-    const csrfToken = getState().token;
+    let csrfToken = getState().token;
+    if (!csrfToken) {
+      const res = await axios.get("/auth/csrf-token");
+      csrfToken = res.data.csrfToken;
+      dispatch(gotCsrfToken(csrfToken));
+    }
     const { data } = await axios.post("/auth/register", credentials, {
       headers: { "X-CSRF-Token": csrfToken },
     });
@@ -48,7 +53,12 @@ export const register = (credentials) => async (dispatch, getState) => {
 
 export const login = (credentials) => async (dispatch, getState) => {
   try {
-    const csrfToken = getState().token;
+    let csrfToken = getState().token;
+    if (!csrfToken) {
+      const res = await axios.get("/auth/csrf-token");
+      csrfToken = res.data.csrfToken;
+      dispatch(gotCsrfToken(csrfToken));
+    }
     const { data } = await axios.post("/auth/login", credentials, {
       headers: { "X-CSRF-Token": csrfToken },
     });
