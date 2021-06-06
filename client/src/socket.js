@@ -24,7 +24,6 @@ const connectSocket = () => {
     });
 
     socket.on("last-seen-updated", (data) => {
-      console.log("aaaaaaaa");
       store.dispatch(lastSeenUpdated(data.conversationId, data.lastSeen, data.userId));
     });
   });

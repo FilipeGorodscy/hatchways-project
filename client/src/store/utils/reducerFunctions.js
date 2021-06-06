@@ -109,7 +109,7 @@ export const updateOtherUserLastSeen = (state, payload) => {
       }
       return false;
     });
-    console.log(convo.messages);
+
     return {
       ...convo,
       lastSeenOtherUser: payload.lastSeen,

@@ -98,20 +98,27 @@ router.get("/", async (req, res, next) => {
 
 router.patch("/:id", async (req, res, next) => {
   try {
+    const lastSeen = new Date();
     const userId = req.user.id;
     const conversation = await Conversation.findById(req.params.id);
     if (!conversation) {
       return res.sendStatus(404);
     }
     if (conversation.user1Id === userId) {
-      conversation.lastSeenUser1 = req.body.lastSeen;
+      conversation.lastSeenUser1 = lastSeen;
     } else if (conversation.user2Id === userId) {
-      conversation.lastSeenUser2 = req.body.lastSeen;
+      conversation.lastSeenUser2 = lastSeen;
     } else {
       return res.sendStatus(403);
     }
     await conversation.save();
     await conversation.reload();
+
+    req.app.get("io").emit("last-seen-updated", {
+      conversationId: conversation.id,
+      lastSeen: lastSeen,
+      userId,
+    });
     res.json(conversation);
   } catch (error) {
     next(error);
