@@ -9,7 +9,7 @@ router.post("/", async (req, res, next) => {
       return res.sendStatus(401);
     }
     const senderId = req.user.id;
-    const { recipientId, text, conversationId, sender } = req.body;
+    let { recipientId, text, conversationId, sender } = req.body;
 
     if (sender.id && senderId !== sender.id) {
       return res.sendStatus(403);
@@ -24,28 +24,27 @@ router.post("/", async (req, res, next) => {
       if (![user1Id, user2Id].includes(senderId)) {
         return res.sendStatus(403);
       }
+    } else {
+      // if we don't have conversation id, find a conversation to make sure it doesn't already exist
+      let conversation = await Conversation.findConversation(senderId, recipientId);
 
-      const message = await Message.create({ senderId, text, conversationId });
-      return res.json({ message, sender });
-    }
-    // if we don't have conversation id, find a conversation to make sure it doesn't already exist
-    let conversation = await Conversation.findConversation(senderId, recipientId);
-
-    if (!conversation) {
-      // create conversation
-      conversation = await Conversation.create({
-        user1Id: senderId,
-        user2Id: recipientId,
-      });
-      if (onlineUsers.includes(sender.id)) {
-        sender.online = true;
+      if (!conversation) {
+        // create conversation
+        conversation = await Conversation.create({
+          user1Id: senderId,
+          user2Id: recipientId,
+        });
+        if (onlineUsers.includes(sender.id)) {
+          sender.online = true;
+        }
       }
+      conversationId = conversation.id;
     }
-
-    const message = await Message.create({
-      senderId,
-      text,
-      conversationId: conversation.id,
+    const message = await Message.create({ senderId, text, conversationId });
+    req.app.get("io").emit("new-message", {
+      message,
+      recipientId,
+      sender,
     });
     res.json({ message, sender });
   } catch (error) {
