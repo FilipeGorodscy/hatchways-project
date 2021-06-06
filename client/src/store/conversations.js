@@ -5,6 +5,7 @@ import {
   removeOfflineUserFromStore,
   addMessageToStore,
   clearUnseenMessages,
+  updateOtherUserLastSeen,
 } from "./utils/reducerFunctions";
 import { SET_ACTIVE_CHAT } from "./activeConversation";
 // ACTIONS
@@ -16,6 +17,7 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
+const LAST_SEEN_UPDATED = "LAST_SEEN_UPDATED";
 
 // ACTION CREATORS
 
@@ -68,6 +70,12 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
+export const lastSeenUpdated = (conversationId, lastSeen, userId) => {
+  return {
+    type: LAST_SEEN_UPDATED,
+    payload: { conversationId, lastSeen, userId },
+  };
+};
 // REDUCER
 
 const reducer = (state = [], action) => {
@@ -90,6 +98,8 @@ const reducer = (state = [], action) => {
       return addNewConvoToStore(state, action.payload.recipientId, action.payload.newMessage);
     case SET_ACTIVE_CHAT:
       return clearUnseenMessages(state, action);
+    case LAST_SEEN_UPDATED:
+      return updateOtherUserLastSeen(state, action.payload);
     default:
       return state;
   }

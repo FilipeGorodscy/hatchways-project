@@ -8,6 +8,8 @@ export const updateLastSeen = (conversationId) => async () => {
   const lastSeen = new Date();
 
   await axios.patch(`/api/conversations/${conversationId}`, { lastSeen });
+
+  socket().emit("last-seen-updated", { conversationId, lastSeen });
 };
 
 export const setActiveChat = (conversation) => async (dispatch) => {

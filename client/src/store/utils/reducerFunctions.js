@@ -1,4 +1,3 @@
-import yallist from "yallist";
 export const addMessageToStore = (state, payload) => {
   const { message, sender, activeConversation } = payload;
 
@@ -7,7 +6,7 @@ export const addMessageToStore = (state, payload) => {
     const newConvo = {
       id: message.conversationId,
       otherUser: sender,
-      messages: yallist.create([message]),
+      messages: [message],
       unseenMessageCount: 1,
     };
     newConvo.latestMessageText = message.text;
@@ -99,3 +98,25 @@ export const clearUnseenMessages = (state, action) =>
       return convo;
     }
   });
+
+export const updateOtherUserLastSeen = (state, payload) => {
+  return state.map((convo) => {
+    if (convo.otherUser.id !== payload.userId) return convo;
+
+    const lastMessageSeenIndex = convo.messages.findIndex((message) => {
+      if (message.senderId !== payload.userId) {
+        return message.updatedAt < payload.lastSeen;
+      }
+      return false;
+    });
+    console.log(convo.messages);
+    return {
+      ...convo,
+      lastSeenOtherUser: payload.lastSeen,
+      otherUser: {
+        ...convo.otherUser,
+        lastMessageSeenIndex,
+      },
+    };
+  });
+};

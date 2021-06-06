@@ -57,13 +57,13 @@ router.get("/", async (req, res, next) => {
         convoJSON.otherUser = convoJSON.user1;
         convoJSON.lastSeenOtherUser = convoJSON.lastSeenUser1;
         convoJSON.lastSeen = convoJSON.lastSeenUser2;
-        delete convoJSON.user1;
       } else if (convoJSON.user2) {
         convoJSON.otherUser = convoJSON.user2;
         convoJSON.lastSeenOtherUser = convoJSON.lastSeenUser2;
         convoJSON.lastSeen = convoJSON.lastSeenUser1;
-        delete convoJSON.user2;
       }
+      delete convoJSON.user1;
+      delete convoJSON.user2;
       delete convoJSON.lastSeenUser1;
       delete convoJSON.lastSeenUser2;
 

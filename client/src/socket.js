@@ -1,6 +1,6 @@
 import io from "socket.io-client";
 import store from "./store";
-import { removeOfflineUser, addOnlineUser } from "./store/conversations";
+import { removeOfflineUser, addOnlineUser, lastSeenUpdated } from "./store/conversations";
 import { receiveNewMessage } from "./store/utils/thunkCreators";
 
 let socket = null;
@@ -21,6 +21,11 @@ const connectSocket = () => {
 
     socket.on("new-message", (data) => {
       store.dispatch(receiveNewMessage(data.message, data.sender));
+    });
+
+    socket.on("last-seen-updated", (data) => {
+      console.log("aaaaaaaa");
+      store.dispatch(lastSeenUpdated(data.conversationId, data.lastSeen, data.userId));
     });
   });
   return socket;
