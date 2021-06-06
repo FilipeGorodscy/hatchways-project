@@ -25,7 +25,7 @@ const Chat = ({ classes, conversation }) => {
   const dispatch = useDispatch();
 
   const handleClick = (conversation) => {
-    dispatch(setActiveChat(conversation.otherUser.username));
+    dispatch(setActiveChat(conversation));
   };
 
   return (
