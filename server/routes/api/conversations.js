@@ -55,13 +55,17 @@ router.get("/", async (req, res, next) => {
       // set a property "otherUser" so that frontend will have easier access
       if (convoJSON.user1) {
         convoJSON.otherUser = convoJSON.user1;
+        convoJSON.lastSeenOtherUser = convoJSON.lastSeenUser1;
         convoJSON.lastSeen = convoJSON.lastSeenUser2;
         delete convoJSON.user1;
       } else if (convoJSON.user2) {
         convoJSON.otherUser = convoJSON.user2;
+        convoJSON.lastSeenOtherUser = convoJSON.lastSeenUser2;
         convoJSON.lastSeen = convoJSON.lastSeenUser1;
         delete convoJSON.user2;
       }
+      delete convoJSON.lastSeenUser1;
+      delete convoJSON.lastSeenUser2;
 
       // set property for online status of the other user
       if (onlineUsers.includes(convoJSON.otherUser.id)) {
@@ -71,10 +75,18 @@ router.get("/", async (req, res, next) => {
       }
 
       // set properties for notification count and latest message preview
-      convoJSON.latestMessageText = convoJSON.messages[0].text;
+      convoJSON.latestMessageText = convoJSON.messages[0]?.text;
       convoJSON.unseenMessageCount = convoJSON.messages
-        .filter((message) => message.updatedAt >= convoJSON.lastSeen)
+        .filter((message) => message.createdAt >= convoJSON.lastSeen)
         .filter((message) => message.senderId !== userId).length;
+
+      const lastMessageSeenIndex = convoJSON.messages.findIndex((message) => {
+        if (message.senderId === userId) {
+          return message.createdAt <= convoJSON.lastSeenOtherUser;
+        }
+        return false;
+      });
+      convoJSON.otherUser.lastMessageSeenIndex = lastMessageSeenIndex;
       conversations[i] = convoJSON;
     }
 

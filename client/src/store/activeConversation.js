@@ -1,14 +1,19 @@
 import axios from "axios";
+import socket from "../socket";
 
-const SET_ACTIVE_CHAT = "SET_ACTIVE_CHAT";
+export const SET_ACTIVE_CHAT = "SET_ACTIVE_CHAT";
+
+export const updateLastSeen = (conversationId) => async () => {
+  if (!conversationId) return;
+  const lastSeen = new Date();
+
+  await axios.patch(`/api/conversations/${conversationId}`, { lastSeen });
+};
 
 export const setActiveChat = (conversation) => async (dispatch) => {
   try {
-    if (conversation.id) {
-      const lastSeen = new Date();
+    await updateLastSeen(conversation.id)();
 
-      await axios.patch(`/api/conversations/${conversation.id}`, { lastSeen });
-    }
     dispatch({
       type: SET_ACTIVE_CHAT,
       username: conversation.otherUser.username,

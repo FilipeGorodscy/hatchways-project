@@ -4,8 +4,9 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
+  clearUnseenMessages,
 } from "./utils/reducerFunctions";
-
+import { SET_ACTIVE_CHAT } from "./activeConversation";
 // ACTIONS
 
 const GET_CONVERSATIONS = "GET_CONVERSATIONS";
@@ -25,10 +26,10 @@ export const gotConversations = (conversations) => {
   };
 };
 
-export const setNewMessage = (message, sender) => {
+export const setNewMessage = (message, sender, activeConversation) => {
   return {
     type: SET_MESSAGE,
-    payload: { message, sender },
+    payload: { message, sender, activeConversation },
   };
 };
 
@@ -87,6 +88,8 @@ const reducer = (state = [], action) => {
       return state.filter((convo) => convo.id);
     case ADD_CONVERSATION:
       return addNewConvoToStore(state, action.payload.recipientId, action.payload.newMessage);
+    case SET_ACTIVE_CHAT:
+      return clearUnseenMessages(state, action);
     default:
       return state;
   }

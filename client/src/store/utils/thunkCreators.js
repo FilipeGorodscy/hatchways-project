@@ -1,6 +1,7 @@
 import axios from "axios";
 import { clearOnLogout } from "..";
 import socket from "../../socket";
+import { updateLastSeen } from "../activeConversation";
 import { gotConversations, addConversation, setNewMessage, setSearchedUsers } from "../conversations";
 import { gotCsrfToken } from "../token";
 import { gotUser, setFetchingStatus } from "../user";
@@ -113,6 +114,19 @@ export const postMessage = (body) => async (dispatch) => {
     } else {
       dispatch(setNewMessage(data.message, body.sender));
     }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const receiveNewMessage = (message, sender) => async (dispatch, getState) => {
+  try {
+    const activeConversation = getState().activeConversation;
+    dispatch(setNewMessage(message, sender, activeConversation));
+    const conversationId = getState().conversations.find(
+      (convo) => convo.otherUser.username === activeConversation
+    )?.id;
+    dispatch(updateLastSeen(conversationId));
   } catch (error) {
     console.error(error);
   }
