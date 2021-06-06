@@ -21,17 +21,14 @@ const styles = {
 
 class Chat extends Component {
   handleClick = async (conversation) => {
-    await this.props.setActiveChat(conversation.otherUser.username);
+    await this.props.setActiveChat(conversation ?? { otherUser: this.props.otherUser.username });
   };
 
   render() {
     const { classes } = this.props;
     const otherUser = this.props.conversation.otherUser;
     return (
-      <Box
-        onClick={() => this.handleClick(this.props.conversation)}
-        className={classes.root}
-      >
+      <Box onClick={() => this.handleClick(this.props.conversation)} className={classes.root}>
         <BadgeAvatar
           photoUrl={otherUser.photoUrl}
           username={otherUser.username}
@@ -46,8 +43,8 @@ class Chat extends Component {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setActiveChat: (id) => {
-      dispatch(setActiveChat(id));
+    setActiveChat: (conversation) => {
+      dispatch(setActiveChat(conversation));
     },
   };
 };

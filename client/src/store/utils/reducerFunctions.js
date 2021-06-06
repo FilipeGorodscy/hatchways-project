@@ -2,13 +2,16 @@ import yallist from "yallist";
 export const addMessageToStore = (state, payload) => {
   const { message, sender } = payload;
   // if sender isn't null, that means the message needs to be put in a brand new convo
-  if (sender !== null) {
+  const conversation = state.find((convo) => convo.id === message.conversationId);
+  if (!conversation) {
     const newConvo = {
       id: message.conversationId,
       otherUser: sender,
       messages: yallist.create([message]),
+      unseenMessageCount: 1,
     };
     newConvo.latestMessageText = message.text;
+
     return [newConvo, ...state];
   }
 
@@ -17,7 +20,9 @@ export const addMessageToStore = (state, payload) => {
       const convoCopy = { ...convo };
       convoCopy.messages.unshift(message);
       convoCopy.latestMessageText = message.text;
-
+      if (sender.id === convo.otherUser.id) {
+        convoCopy.unseenMessageCount += 1;
+      }
       return convoCopy;
     } else {
       return convo;

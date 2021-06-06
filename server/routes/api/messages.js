@@ -11,7 +11,7 @@ router.post("/", async (req, res, next) => {
     const senderId = req.user.id;
     let { recipientId, text, conversationId, sender } = req.body;
 
-    if (sender.id && senderId !== sender.id) {
+    if (senderId !== sender.id) {
       return res.sendStatus(403);
     }
 

@@ -19,7 +19,7 @@ router.get("/", async (req, res, next) => {
           user2Id: userId,
         },
       },
-      attributes: ["id"],
+      attributes: ["id", "lastSeenUser1", "lastSeenUser2"],
       order: [[Message, "createdAt", "DESC"]],
       include: [
         { model: Message, order: ["createdAt", "DESC"] },
@@ -55,9 +55,11 @@ router.get("/", async (req, res, next) => {
       // set a property "otherUser" so that frontend will have easier access
       if (convoJSON.user1) {
         convoJSON.otherUser = convoJSON.user1;
+        convoJSON.lastSeen = convoJSON.lastSeenUser2;
         delete convoJSON.user1;
       } else if (convoJSON.user2) {
         convoJSON.otherUser = convoJSON.user2;
+        convoJSON.lastSeen = convoJSON.lastSeenUser1;
         delete convoJSON.user2;
       }
 
@@ -70,10 +72,35 @@ router.get("/", async (req, res, next) => {
 
       // set properties for notification count and latest message preview
       convoJSON.latestMessageText = convoJSON.messages[0].text;
+      convoJSON.unseenMessageCount = convoJSON.messages
+        .filter((message) => message.updatedAt >= convoJSON.lastSeen)
+        .filter((message) => message.senderId !== userId).length;
       conversations[i] = convoJSON;
     }
 
     res.json(conversations);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.patch("/:id", async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const conversation = await Conversation.findById(req.params.id);
+    if (!conversation) {
+      return res.sendStatus(404);
+    }
+    if (conversation.user1Id === userId) {
+      conversation.lastSeenUser1 = req.body.lastSeen;
+    } else if (conversation.user2Id === userId) {
+      conversation.lastSeenUser2 = req.body.lastSeen;
+    } else {
+      return res.sendStatus(403);
+    }
+    await conversation.save();
+    await conversation.reload();
+    res.json(conversation);
   } catch (error) {
     next(error);
   }

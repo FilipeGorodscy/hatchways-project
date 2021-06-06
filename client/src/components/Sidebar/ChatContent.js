@@ -6,6 +6,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
+    alignItems: "center",
     marginLeft: 20,
     flexGrow: 1,
   },
@@ -43,13 +44,13 @@ const ChatContent = (props) => {
   return (
     <Box className={classes.root}>
       <Box>
-        <Typography className={classes.username}>
-          {otherUser.username}
-        </Typography>
-        <Typography className={classes.previewText}>
-          {latestMessageText}
-        </Typography>
+        <Typography className={classes.username}>{otherUser.username}</Typography>
+        <Typography className={classes.previewText}>{latestMessageText}</Typography>
       </Box>
+      {(conversation.unseenMessageCount && (
+        <Typography className={classes.notification}>{conversation.unseenMessageCount}</Typography>
+      )) ||
+        null}
     </Box>
   );
 };
