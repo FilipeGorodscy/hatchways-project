@@ -11,12 +11,12 @@ const connectSocket = () => {
   socket.on("connect", () => {
     console.log("connected to server");
 
-    socket.on("add-online-user", (id) => {
-      store.dispatch(addOnlineUser(id));
+    socket.on("add-online-user", (username) => {
+      store.dispatch(addOnlineUser(username));
     });
 
-    socket.on("remove-offline-user", (id) => {
-      store.dispatch(removeOfflineUser(id));
+    socket.on("remove-offline-user", (username) => {
+      store.dispatch(removeOfflineUser(username));
     });
 
     socket.on("new-message", (data) => {
@@ -24,7 +24,7 @@ const connectSocket = () => {
     });
 
     socket.on("last-seen-updated", (data) => {
-      store.dispatch(lastSeenUpdated(data.conversationId, data.lastSeen, data.userId));
+      store.dispatch(lastSeenUpdated(data.conversationId, data.lastSeen, data.user));
     });
   });
   return socket;

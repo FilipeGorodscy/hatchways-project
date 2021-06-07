@@ -9,26 +9,31 @@ const useStyles = makeStyles(() => ({
     display: "flex",
     flexGrow: 8,
     flexDirection: "column",
+    position: "relative",
+    height: "100%",
+    paddingBottom: "105px",
   },
   chatContainer: {
-    marginLeft: 41,
-    marginRight: 41,
+    paddingLeft: "1em",
+    paddingRight: "1em",
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
     justifyContent: "space-between",
+    width: "100%",
+    overflow: "scroll",
+  },
+  chatInput: {
+    position: "fixed",
+    bottom: "0%",
+    width: "100%",
   },
 }));
 
 const ActiveChat = () => {
   const classes = useStyles();
   const user = useSelector((state) => state.user);
-  const conversation =
-    useSelector(
-      (state) =>
-        state.conversations &&
-        state.conversations.find((conversation) => conversation.otherUser.username === state.activeConversation)
-    ) || {};
+  const conversation = useSelector((state) => state.conversations?.[state.activeConversation]) || {};
 
   return (
     <Box className={classes.root}>
@@ -37,6 +42,8 @@ const ActiveChat = () => {
           <Header username={conversation.otherUser.username} online={conversation.otherUser.online || false} />
           <Box className={classes.chatContainer}>
             <Messages messages={conversation.messages} otherUser={conversation.otherUser} userId={user.id} />
+          </Box>
+          <Box className={classes.chatInput}>
             <Input otherUser={conversation.otherUser} conversationId={conversation.id} user={user} />
           </Box>
         </>

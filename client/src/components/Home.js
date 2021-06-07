@@ -9,7 +9,10 @@ import { logout, fetchConversations } from "../store/utils/thunkCreators";
 
 const styles = {
   root: {
-    height: "97vh",
+    height: "95vh",
+  },
+  logout: {
+    height: "5vh",
   },
 };
 
@@ -28,7 +31,7 @@ const Home = ({ classes }) => {
   }, [user.id]);
 
   const handleLogout = () => {
-    dispatch(logout(user.id));
+    dispatch(logout(user));
   };
 
   if (!user.id) {

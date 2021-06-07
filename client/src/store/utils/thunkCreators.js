@@ -23,7 +23,7 @@ export const fetchUser = () => async (dispatch) => {
     const { data } = await axios.get("/auth/user");
     dispatch(gotUser(data));
     if (data.id) {
-      socket().emit("go-online", data.id);
+      socket().emit("go-online", data.id, data.username);
     }
   } catch (error) {
     console.error(error);
@@ -45,7 +45,7 @@ export const register = (credentials) => async (dispatch, getState) => {
     });
 
     dispatch(gotUser(data));
-    socket().emit("go-online", data.id);
+    socket().emit("go-online", data.id, data.username);
   } catch (error) {
     console.error(error);
     dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
@@ -65,14 +65,14 @@ export const login = (credentials) => async (dispatch, getState) => {
     });
 
     dispatch(gotUser(data));
-    socket().emit("go-online", data.id);
+    socket().emit("go-online", data.id, data.username);
   } catch (error) {
     console.error(error);
     dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
   }
 };
 
-export const logout = (id) => async (dispatch, getState) => {
+export const logout = (user) => async (dispatch, getState) => {
   try {
     const csrfToken = getState().token;
     await axios.delete("/auth/logout", {
@@ -81,7 +81,7 @@ export const logout = (id) => async (dispatch, getState) => {
     dispatch(gotUser({}));
     dispatch(clearOnLogout());
 
-    socket().emit("logout", id);
+    socket().emit("logout", user.id, user.username);
   } catch (error) {
     console.error(error);
   }
@@ -120,16 +120,17 @@ export const postMessage = (body) => async (dispatch) => {
 };
 
 export const receiveNewMessage = (message, sender) => async (dispatch, getState) => {
-  try {
-    const activeConversation = getState().activeConversation;
-    dispatch(setNewMessage(message, sender, activeConversation));
-    const conversationId = getState().conversations.find(
-      (convo) => convo.otherUser.username === activeConversation
-    )?.id;
-    dispatch(updateLastSeen(conversationId));
-  } catch (error) {
-    console.error(error);
-  }
+  const {
+    activeConversation,
+    conversations,
+    user: { id: userId },
+  } = getState();
+  const conversationId = conversations[activeConversation]?.id;
+
+  if (userId === sender.id) return;
+
+  dispatch(setNewMessage(message, sender, activeConversation));
+  dispatch(updateLastSeen(conversationId));
 };
 
 export const searchUsers = (searchTerm) => async (dispatch) => {

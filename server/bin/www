@@ -34,21 +34,21 @@ app.set("io", io);
 
 io.on("connection", (socket) => {
   socket.data = {};
-  socket.on("go-online", (id) => {
+  socket.on("go-online", (id, username) => {
     socket.data.userId = id;
 
     if (!onlineUsers.includes(id)) {
       onlineUsers.push(id);
     }
     // send the user who just went online to everyone else who is already online
-    socket.broadcast.emit("add-online-user", id);
+    socket.broadcast.emit("add-online-user", username);
   });
 
-  socket.on("logout", (id) => {
+  socket.on("logout", (id, username) => {
     if (onlineUsers.includes(id)) {
       userIndex = onlineUsers.indexOf(id);
       onlineUsers.splice(userIndex, 1);
-      socket.broadcast.emit("remove-offline-user", id);
+      socket.broadcast.emit("remove-offline-user", username);
     }
     socket.disconnect();
   });
