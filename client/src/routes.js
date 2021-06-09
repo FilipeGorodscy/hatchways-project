@@ -14,9 +14,6 @@ const Routes = () => {
 
   useEffect(() => {
     dispatch(getCsrfToken());
-  }, [dispatch]);
-
-  useEffect(() => {
     dispatch(fetchUser());
   }, [dispatch]);
 

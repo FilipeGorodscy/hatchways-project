@@ -39,7 +39,7 @@ const ActiveChat = () => {
     <Box className={classes.root}>
       {conversation.otherUser && (
         <>
-          <Header username={conversation.otherUser.username} online={conversation.otherUser.online || false} />
+          <Header username={conversation.otherUser.username} online={conversation.otherUser.online} />
           <Box className={classes.chatContainer}>
             <Messages messages={conversation.messages} otherUser={conversation.otherUser} userId={user.id} />
           </Box>
