@@ -9,7 +9,7 @@ router.post("/", async (req, res, next) => {
       return res.sendStatus(401);
     }
     const senderId = req.user.id;
-    let { recipientId, text, conversationId, sender } = req.body;
+    const { recipientId, text, conversationId, sender } = req.body;
 
     if (sender.id && senderId !== sender.id) {
       return res.sendStatus(403);
