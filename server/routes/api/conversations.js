@@ -117,7 +117,7 @@ router.patch("/:id", async (req, res, next) => {
     req.app.get("io").emit("last-seen-updated", {
       conversationId: conversation.id,
       lastSeen: lastSeen,
-      userId,
+      user: req.user,
     });
     res.json(conversation);
   } catch (error) {

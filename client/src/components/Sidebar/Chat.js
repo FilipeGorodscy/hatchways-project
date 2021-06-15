@@ -1,9 +1,9 @@
-import React, { Component } from "react";
+import React from "react";
 import { Box } from "@material-ui/core";
 import { BadgeAvatar, ChatContent } from "../Sidebar";
 import { withStyles } from "@material-ui/core/styles";
 import { setActiveChat } from "../../store/activeConversation";
-import { connect } from "react-redux";
+import { useDispatch } from "react-redux";
 
 const styles = {
   root: {
@@ -19,34 +19,26 @@ const styles = {
   },
 };
 
-class Chat extends Component {
-  handleClick = async (conversation) => {
-    await this.props.setActiveChat(conversation ?? { otherUser: this.props.otherUser.username });
+const Chat = ({ classes, conversation }) => {
+  const otherUser = conversation.otherUser;
+
+  const dispatch = useDispatch();
+
+  const handleClick = (conversation) => {
+    dispatch(setActiveChat(conversation));
   };
 
-  render() {
-    const { classes } = this.props;
-    const otherUser = this.props.conversation.otherUser;
-    return (
-      <Box onClick={() => this.handleClick(this.props.conversation)} className={classes.root}>
-        <BadgeAvatar
-          photoUrl={otherUser.photoUrl}
-          username={otherUser.username}
-          online={otherUser.online}
-          sidebar={true}
-        />
-        <ChatContent conversation={this.props.conversation} />
-      </Box>
-    );
-  }
-}
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    setActiveChat: (conversation) => {
-      dispatch(setActiveChat(conversation));
-    },
-  };
+  return (
+    <Box onClick={() => handleClick(conversation)} className={classes.root}>
+      <BadgeAvatar
+        photoUrl={otherUser.photoUrl}
+        username={otherUser.username}
+        online={otherUser.online}
+        sidebar={true}
+      />
+      <ChatContent conversation={conversation} />
+    </Box>
+  );
 };
 
-export default connect(null, mapDispatchToProps)(withStyles(styles)(Chat));
+export default withStyles(styles)(Chat);

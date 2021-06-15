@@ -41,6 +41,7 @@ router.post("/", async (req, res, next) => {
       conversationId = conversation.id;
     }
     const message = await Message.create({ senderId, text, conversationId });
+
     req.app.get("io").emit("new-message", {
       message,
       recipientId,

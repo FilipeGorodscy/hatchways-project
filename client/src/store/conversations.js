@@ -35,17 +35,17 @@ export const setNewMessage = (message, sender, activeConversation) => {
   };
 };
 
-export const addOnlineUser = (id) => {
+export const addOnlineUser = (username) => {
   return {
     type: ADD_ONLINE_USER,
-    id,
+    username,
   };
 };
 
-export const removeOfflineUser = (id) => {
+export const removeOfflineUser = (username) => {
   return {
     type: REMOVE_OFFLINE_USER,
-    id,
+    username,
   };
 };
 
@@ -70,30 +70,30 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
-export const lastSeenUpdated = (conversationId, lastSeen, userId) => {
+export const lastSeenUpdated = (conversationId, lastSeen, user) => {
   return {
     type: LAST_SEEN_UPDATED,
-    payload: { conversationId, lastSeen, userId },
+    payload: { conversationId, lastSeen, user },
   };
 };
 // REDUCER
 
-const reducer = (state = [], action) => {
+const reducer = (state = {}, action) => {
   switch (action.type) {
     case GET_CONVERSATIONS:
-      return action.conversations;
+      return action.conversations.reduce((result, convo) => ({ ...result, [convo.otherUser.username]: convo }), state);
     case SET_MESSAGE:
       return addMessageToStore(state, action.payload);
     case ADD_ONLINE_USER: {
-      return addOnlineUserToStore(state, action.id);
+      return addOnlineUserToStore(state, action.username);
     }
     case REMOVE_OFFLINE_USER: {
-      return removeOfflineUserFromStore(state, action.id);
+      return removeOfflineUserFromStore(state, action.username);
     }
     case SET_SEARCHED_USERS:
       return addSearchedUsersToStore(state, action.users);
     case CLEAR_SEARCHED_USERS:
-      return state.filter((convo) => convo.id);
+      return Object.values(state).filter((convo) => convo.id);
     case ADD_CONVERSATION:
       return addNewConvoToStore(state, action.payload.recipientId, action.payload.newMessage);
     case SET_ACTIVE_CHAT:
