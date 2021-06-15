@@ -13,7 +13,7 @@ const Routes = (props) => {
 
   useEffect(() => {
     getCsrfToken();
-  }, []);
+  }, [getCsrfToken]);
 
   useEffect(() => {
     fetchUser();

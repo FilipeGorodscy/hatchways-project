@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Redirect, useHistory } from "react-router-dom";
 import { connect } from "react-redux";
 import { Grid, useMediaQuery } from "@material-ui/core";
@@ -7,7 +7,6 @@ import { register } from "../../store/utils/thunkCreators";
 import SignupForm from "./SignupForm";
 import LoginSignupHeader from "./LoginSignupHeader";
 import LoginSignupPicture from "./LoginSignupPicture";
-import axios from "axios";
 
 const Signup = ({ user, register }) => {
   const history = useHistory();

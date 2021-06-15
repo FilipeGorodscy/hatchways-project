@@ -22,7 +22,7 @@ export const fetchUser = () => async (dispatch) => {
     const { data } = await axios.get("/auth/user");
     dispatch(gotUser(data));
     if (data.id) {
-      socket.emit("go-online", data.id);
+      socket().emit("go-online", data.id);
     }
   } catch (error) {
     console.error(error);
@@ -33,13 +33,18 @@ export const fetchUser = () => async (dispatch) => {
 
 export const register = (credentials) => async (dispatch, getState) => {
   try {
-    const csrfToken = getState().token;
+    let csrfToken = getState().token;
+    if (!csrfToken) {
+      const res = await axios.get("/auth/csrf-token");
+      csrfToken = res.data.csrfToken;
+      dispatch(gotCsrfToken(csrfToken));
+    }
     const { data } = await axios.post("/auth/register", credentials, {
       headers: { "X-CSRF-Token": csrfToken },
     });
 
     dispatch(gotUser(data));
-    socket.emit("go-online", data.id);
+    socket().emit("go-online", data.id);
   } catch (error) {
     console.error(error);
     dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
@@ -48,13 +53,18 @@ export const register = (credentials) => async (dispatch, getState) => {
 
 export const login = (credentials) => async (dispatch, getState) => {
   try {
-    const csrfToken = getState().token;
+    let csrfToken = getState().token;
+    if (!csrfToken) {
+      const res = await axios.get("/auth/csrf-token");
+      csrfToken = res.data.csrfToken;
+      dispatch(gotCsrfToken(csrfToken));
+    }
     const { data } = await axios.post("/auth/login", credentials, {
       headers: { "X-CSRF-Token": csrfToken },
     });
 
     dispatch(gotUser(data));
-    socket.emit("go-online", data.id);
+    socket().emit("go-online", data.id);
   } catch (error) {
     console.error(error);
     dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
@@ -70,7 +80,7 @@ export const logout = (id) => async (dispatch, getState) => {
     dispatch(gotUser({}));
     dispatch(clearOnLogout());
 
-    socket.emit("logout", id);
+    socket().emit("logout", id);
   } catch (error) {
     console.error(error);
   }
@@ -92,14 +102,6 @@ const saveMessage = async (body) => {
   return data;
 };
 
-const sendMessage = (data, body) => {
-  socket.emit("new-message", {
-    message: data.message,
-    recipientId: body.recipientId,
-    sender: data.sender,
-  });
-};
-
 // message format to send: {recipientId, text, conversationId}
 // conversationId will be set to null if its a brand new conversation
 export const postMessage = (body) => async (dispatch) => {
@@ -111,8 +113,6 @@ export const postMessage = (body) => async (dispatch) => {
     } else {
       dispatch(setNewMessage(data.message));
     }
-
-    sendMessage(data, body);
   } catch (error) {
     console.error(error);
   }
