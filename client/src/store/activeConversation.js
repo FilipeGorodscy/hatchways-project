@@ -1,10 +1,23 @@
-const SET_ACTIVE_CHAT = "SET_ACTIVE_CHAT";
+import axios from "axios";
 
-export const setActiveChat = (username) => {
-  return {
-    type: SET_ACTIVE_CHAT,
-    username
-  };
+export const SET_ACTIVE_CHAT = "SET_ACTIVE_CHAT";
+
+export const updateLastSeen = (conversationId) => async () => {
+  if (!conversationId) return;
+  await axios.patch(`/api/conversations/${conversationId}`);
+};
+
+export const setActiveChat = (conversation) => async (dispatch) => {
+  try {
+    await updateLastSeen(conversation.id)();
+
+    dispatch({
+      type: SET_ACTIVE_CHAT,
+      username: conversation.otherUser.username,
+    });
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const reducer = (state = "", action) => {
