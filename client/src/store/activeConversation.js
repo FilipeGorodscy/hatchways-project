@@ -20,7 +20,7 @@ export const setActiveChat = (conversation) => async (dispatch) => {
   }
 };
 
-const reducer = (state = "", action) => {
+const activeReducer = (state = "", action) => {
   switch (action.type) {
     case SET_ACTIVE_CHAT: {
       return action.username;
@@ -30,4 +30,4 @@ const reducer = (state = "", action) => {
   }
 };
 
-export default reducer;
+export default activeReducer;
